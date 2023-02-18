@@ -1,0 +1,32 @@
+{
+  "exp": {
+    "name": "conv_mnist_from_config"
+  },
+  "data_loader": {
+    "name": "reader.FruitsDataLoader",
+    "data_dir": "datasets",
+    "img_size": "224,224,3"
+  },
+  "model":{
+    "name": "template_model.TemplateModel",
+    "learning_rate": 0.0001,
+    "optimizer": "nadam",
+    "dynamic_lr" : false
+  },
+  "trainer":{
+    "name": "fruit_model_trainer.FruitModelTrainer",
+    "num_epochs": 20,
+    "batch_size": 50,
+    "validation_split":0.3,
+    "verbose_training": true
+  },
+  "callbacks":{
+    "checkpoint_monitor": "val_loss",
+    "checkpoint_mode": "min",
+    "checkpoint_save_best_only": true,
+   "checkpoint_save_weights_only": true,
+    "checkpoint_verbose": true,
+    "tensorboard_write_graph": true,
+    "checkpoint_dir": "."
+  }
+}
