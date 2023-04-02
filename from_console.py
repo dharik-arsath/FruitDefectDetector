@@ -5,6 +5,8 @@ from utils.config import process_config
 from utils.dirs import create_dirs
 from evaluater import evaluate
 import numpy as np
+import tensorflow as tf
+
 
 config_path = "configs/conv_mnist_from_config.json"
 config = process_config(config_path)
@@ -14,18 +16,23 @@ create_dirs([config.callbacks.tensorboard_log_dir, config.callbacks.checkpoint_d
 
 print('Create the data generator.')
 data_loader = FruitsDataLoader(config)
+train_data  = data_loader.get_train_data()
+valid_data  = data_loader.get_val_data()
+test_data   = data_loader.get_test_data()
+
 
 print('Create the model.')
 model = TemplateModel(config)
 
 print('Create the trainer')
 
-trainer = FruitModelTrainer(model.model, data_loader.get_train_val_data(), config)
+trainer     = FruitModelTrainer(model.model, (train_data, valid_data), config)
 
 print('Start training the model.')
 trainer.train()
 
-model.model.evaluate(data_loader.get_val_data())
+model.model.evaluate(valid_data)
+
 evaluate.plot_acc_vs_valacc(trainer)
 
 evaluate.plot_loss_vs_valloss(trainer)
@@ -35,16 +42,28 @@ predictions = np.argmax(trainer.model.predict_on_batch(image_batch), axis=1)
 
 import matplotlib.pyplot as plt
 
-class_names = ["best", "normal" ,"poor"]
-plt.figure(figsize=(10, 10))
-for i in range(9):
-    w = i
-    ax = plt.subplot(3, 3, i + 1)
-    plt.imshow(image_batch[w].astype("uint8"))
-    title = f"True {class_names[label_batch[w]]} Pred {class_names[predictions[w]]}"
-    plt.title(title)
-    plt.axis("off")
+class_names = ["best" ,"poor"]
 
+fig, ax = plt.subplots(nrows=3, ncols=4)
+plt.tight_layout()
+
+for image, label in test_data:
+    pred_proba  = model.model.predict(image)
+    prediction  = np.argmax( pred_proba, axis=1 )
+    best_indx   = np.max(pred_proba, axis=1)
+
+    batch_size  = image.shape[0]
+    img_indx    = 0
+    for row in range(3):
+        for col in range(4):
+            ax[row, col].imshow(tf.cast( image[img_indx], tf.uint8))
+            title = f"True {class_names[label[img_indx]]} Pred {class_names[prediction[img_indx]]} - {best_indx[img_indx]:.3f}"
+            ax[row, col].set_title(title)
+            ax[row, col].axis("off")
+            # ax[row, col].title(f"{label[img_indx]}")
+            img_indx += 1
+
+plt.show()
 
 def make_batch_predictions(images):
     pred = model.model.predict_on_batch(images)
@@ -73,7 +92,7 @@ for images, true_labels in val_ds:
 true_labelss = list()
 pred_labels = list()
 
-for images, true_labels in val_ds:
+for images, true_labels in test_data:
     true_labelss.extend(true_labels)
     pred_labels.extend(make_batch_predictions(images))
 
@@ -86,31 +105,18 @@ metrics.confusion_matrix(true_labelss, pred_labels)
 precision = metrics.precision_score(true_labelss, pred_labels, average=None)
 recall    = metrics.recall_score(true_labelss, pred_labels, average=None)
 f1        = metrics.f1_score(true_labelss, pred_labels, average=None)
-species = ("Best", "Normal", "Poor")
+species = ("Best",  "Poor")
 penguin_means = {
-    'Precision': (precision[0], precision[1], precision[2]),
-    'Recall': (recall[0], recall[1], recall[2]),
-    'F1Score': (f1[0], f1[1], f1[2]),
+    'Precision': (precision[0], precision[1]),
+    'Recall': (recall[0], recall[1]),
+    'F1Score': (f1[0], f1[1])
 }
 
 x = np.arange(len(species))  # the label locations
 width = 0.25  # the width of the bars
 multiplier = 0
 
-fig, ax = plt.subplots(constrained_layout=True)
 
-for attribute, measurement in penguin_means.items():
-    offset = width * multiplier
-    rects = ax.bar(x + offset, measurement, width, label=attribute)
-    ax.bar_label(rects, padding=3)
-    multiplier += 1
+model.model.save("current_model_binary_classV3_regularizedV1.h5")
 
-# Add some text for labels, title and custom x-axis tick labels, etc.
-
-ax.set_title('Precision Recall F1Score of 3 classes')
-ax.set_xticks(x + width, species)
-ax.legend()
-ax.set_ylim(0, 1)
-
-plt.show()
-
+tf.keras.models.load_model("current_model_binary_classV3_regularizedV1.h5")

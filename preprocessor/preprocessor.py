@@ -9,9 +9,12 @@ class PreProcessor():
 
         img_augmentation = tf.keras.Sequential(
             [
-                tf.keras.layers.RandomRotation(factor=(-0.2, 0.2)),
-                tf.keras.layers.RandomTranslation(height_factor=0.2, width_factor=0.2),
-                tf.keras.layers.RandomFlip("horizontal"),
+                tf.keras.layers.RandomRotation(factor=(-0.5, 0.7)),
+                tf.keras.layers.RandomTranslation(height_factor=0.5, width_factor=0.5),
+                tf.keras.layers.RandomFlip("horizontal_and_vertical"),
+                tf.keras.layers.CenterCrop(224, 224),
+                tf.keras.layers.RandomBrightness(factor=(0.2, 0.7)),
+                tf.keras.layers.RandomContrast(factor=(0.2, 0.7)),
             ],
             name="img_augmentation",
         )

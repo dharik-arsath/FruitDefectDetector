@@ -5,12 +5,12 @@
   "data_loader": {
     "name": "reader.FruitsDataLoader",
     "data_dir": "datasets",
-    "img_size": "224,224,3"
+    "img_size": "256,256,3"
   },
   "model":{
     "name": "template_model.TemplateModel",
     "learning_rate": 0.0001,
-    "optimizer": "nadam",
+    "optimizer": "rmsprop",
     "dynamic_lr" : false
   },
   "trainer":{

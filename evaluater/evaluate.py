@@ -60,21 +60,21 @@ class Evaluater(BaseEvaluater):
 
         return metrics.confusion_matrix(self.true_labels, pred_ids)
 
-#
-#
-# def plot_acc_vs_valacc(trainer):
-#     plt.plot(trainer.acc, label = "training_acc")
-#     plt.plot(trainer.val_acc, label = "validation_acc")
-#     plt.grid(True)
-#     plt.gca().set_ylim(0, 1)
-#     plt.legend(fontsize = "x-large")
-#     plt.show()
-#
-# def plot_loss_vs_valloss(trainer):
-#     plt.plot(trainer.loss, label="training_loss")
-#     plt.plot(trainer.val_loss, label="validation_loss")
-#     plt.grid(True)
-#     # plt.gca().set_ylim(0, 1)
-#     plt.legend(fontsize="x-large")
-#     plt.show()
-#
+
+
+def plot_acc_vs_valacc(trainer):
+    plt.plot(trainer.acc, label = "training_acc")
+    plt.plot(trainer.val_acc, label = "validation_acc")
+    plt.grid(True)
+    plt.gca().set_ylim(0, 1)
+    plt.legend(fontsize = "x-large")
+    plt.show()
+
+def plot_loss_vs_valloss(trainer):
+    plt.plot(trainer.loss, label="training_loss")
+    plt.plot(trainer.val_loss, label="validation_loss")
+    plt.grid(True)
+    # plt.gca().set_ylim(0, 1)
+    plt.legend(fontsize="x-large")
+    plt.show()
+

@@ -48,18 +48,18 @@ class TemplateModel(BaseModel):
         # x = tf.keras.layers.BatchNormalization()(x)
         x = tf.keras.layers.Dense(500, activation="selu", kernel_initializer="lecun_normal")(x)
         # x = tf.keras.layers.BatchNormalization()(x)
-        # x = tf.keras.layers.Dropout(0.3)(x)
+        x = tf.keras.layers.Dropout(0.3)(x)
         x = tf.keras.layers.Dense(256, activation="selu", kernel_initializer="lecun_normal")(x)
         # x = tf.keras.layers.BatchNormalization()(x)
-        # x = tf.keras.layers.Dense(500, activation="selu", kernel_initializer="lecun_normal")(x)
+        x = tf.keras.layers.Dense(120, activation="selu", kernel_initializer="lecun_normal")(x)
         # x = tf.keras.layers.BatchNormalization()(x)
-        # x = tf.keras.layers.Dropout(0.3)(x)
-        # x = tf.keras.layers.Dense(1000, activation="leaky_relu")(x)
+        x = tf.keras.layers.Dropout(0.3)(x)
+        x = tf.keras.layers.Dense(120, activation="selu", kernel_initializer="lecun_normal")(x)
         # x = tf.keras.layers.Dense(2000, activation="selu", kernel_initializer="lecun_normal")(x)
         #
-        # top_dropout_rate = 0.5
-        # x = tf.keras.layers.Dropout(top_dropout_rate, name="top_dropout")(x)
-        outputs = tf.keras.layers.Dense(3, activation="softmax", name="pred")(x)
+        top_dropout_rate = 0.5
+        x = tf.keras.layers.Dropout(top_dropout_rate, name="top_dropout")(x)
+        outputs = tf.keras.layers.Dense(2, activation="softmax", name="pred")(x)
 
         self.model = tf.keras.Model(inputs=inputs, outputs=outputs, name="EfficientNet")
 
@@ -67,13 +67,13 @@ class TemplateModel(BaseModel):
         opt = self.__get_optimizer_class(opt_str)
 
         lr = self.config.model.learning_rate
-        # if self.config.model.dynamic_lr:
-        #     print("using dynamic learning_rate scheduler")
-        #     lr =  tf.keras.optimizers.schedules.ExponentialDecay(
-        #         initial_learning_rate=self.config.model.learning_rate,
-        #         decay_steps=10000,
-        #         decay_rate=0.9
-        #     )
+        if self.config.model.dynamic_lr:
+            print("using dynamic learning_rate scheduler")
+            lr =  tf.keras.optimizers.schedules.ExponentialDecay(
+                initial_learning_rate=self.config.model.learning_rate,
+                decay_steps=10000,
+                decay_rate=0.9
+            )
 
         self.model.compile(loss="sparse_categorical_crossentropy", optimizer=opt(learning_rate=lr),
                            metrics=["accuracy"])
